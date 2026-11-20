@@ -1,0 +1,36 @@
+# LiteLLM relay station — one OpenAI-compatible endpoint + one master token.
+# Keys live only in .env (mode 600), referenced here via os.environ. Never commit .env.
+# DeepSeek is NOT listed: its key is valid but the account balance is $0 (verified 2026-11-20,
+# HTTP 402 Insufficient Balance) — add it back if a grant/top-up ever lands.
+# Providers blocked so far (2026-11-20): OpenRouter network-block, SambaNova no key,
+# Zhipu/PPIO phone-only, Groq signup_blocked on the old Proton mailbox, Mistral key needs
+# paid upgrade, Cloudflare/Fireworks/Novita/SiliconFlow Turnstile-blocked.
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY
+
+model_list:
+  - model_name: cohere-command-r7b
+    litellm_params:
+      model: cohere/command-r7b-12-2024
+      api_key: os.environ/COHERE_API_KEY
+  - model_name: cohere-command-r
+    litellm_params:
+      model: cohere/command-r-08-2024
+      api_key: os.environ/COHERE_API_KEY
+  - model_name: cohere-command-r-plus
+    litellm_params:
+      model: cohere/command-r-plus-08-2024
+      api_key: os.environ/COHERE_API_KEY
+  # Friendly default alias: call model "chat" and get the smallest Cohere model.
+  - model_name: chat
+    litellm_params:
+      model: cohere/command-r7b-12-2024
+      api_key: os.environ/COHERE_API_KEY
+
+router_settings:
+  fallbacks:
+    - cohere-command-r7b: ["cohere-command-r", "cohere-command-r-plus"]
+    - chat: ["cohere-command-r", "cohere-command-r-plus"]
+  cooldown_time: 30
+  allowed_fails: 2
